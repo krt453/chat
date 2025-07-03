@@ -8,7 +8,7 @@ class Player {
     this.width = 40;
     this.height = 40;
     this.x = 50;
-    this.y = canvas.height - this.height - 60;
+
     this.velX = 0;
     this.velY = 0;
     this.speed = 3;
@@ -26,27 +26,16 @@ class Player {
       this.velX = 0;
     }
 
-    // Jump
-    if (keys['Space'] && this.grounded) {
       this.velY = -this.jumpStrength;
       this.grounded = false;
     }
 
-    // Apply gravity
-    this.velY += 0.5; // gravity
-    this.x += this.velX;
-    this.y += this.velY;
 
-    // Collision with floor
-    if (this.y + this.height > canvas.height - 20) {
-      this.y = canvas.height - this.height - 20;
       this.velY = 0;
-      this.grounded = true;
+      this.grounded = true
     }
 
-    // Keep inside canvas
-    if (this.x < 0) this.x = 0;
-    if (this.x + this.width > canvas.width) this.x = canvas.width - this.width;
+
   }
 
   draw() {
@@ -69,13 +58,6 @@ class Platform {
   }
 }
 
-const player = new Player();
-const platforms = [
-  new Platform(0, canvas.height - 20, canvas.width, 20),
-  new Platform(150, 300, 100, 10),
-  new Platform(300, 250, 120, 10),
-  new Platform(500, 200, 100, 10)
-];
 
 function checkCollisions() {
   player.grounded = false;
@@ -92,25 +74,24 @@ function checkCollisions() {
       }
     }
   }
+
 }
 
 function loop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   player.update();
-  checkCollisions();
-  player.draw();
-  for (let p of platforms) {
-    p.draw();
-  }
+
   requestAnimationFrame(loop);
 }
 
 window.addEventListener('keydown', (e) => {
   keys[e.code] = true;
+
 });
 
 window.addEventListener('keyup', (e) => {
   keys[e.code] = false;
+
 });
 
 loop();
