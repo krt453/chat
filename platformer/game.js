@@ -31,6 +31,10 @@ class Player {
       this.velX = 0;
     }
 
+    // Salto con flecha arriba (y barra espaciadora como alternativa)
+    if ((keys['ArrowUp'] || keys['Up'] || keys['Space'] ||
+         keys['Spacebar'] || keys[' ']) && this.grounded) {
+=======
     // Salto (acepta distintas representaciones de la tecla espacio)
     if ((keys['Space'] || keys['Spacebar'] || keys[' ']) && this.grounded) {
       this.velY = -this.jumpStrength;
