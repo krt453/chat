@@ -1,9 +1,10 @@
+<canvas id="gameCanvas" width="800" height="600"></canvas>
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 const keys = {};
 
-// Altura total del mundo (mayor que la del canvas para permitir scroll)
+// Altura total del mundo (mayor que el canvas)
 const worldHeight = 800;
 let cameraY = 0;
 
@@ -12,7 +13,6 @@ class Player {
     this.width = 40;
     this.height = 40;
     this.x = 50;
-    // Comenzar cerca de la parte inferior del mundo
     this.y = worldHeight - this.height - 60;
     this.velX = 0;
     this.velY = 0;
@@ -22,17 +22,17 @@ class Player {
   }
 
   update() {
-    // Horizontal movement
-    if (keys['ArrowLeft']) {
+    // Movimiento horizontal
+    if (keys['ArrowLeft'] || keys['Left']) {
       this.velX = -this.speed;
-    } else if (keys['ArrowRight']) {
+    } else if (keys['ArrowRight'] || keys['Right']) {
       this.velX = this.speed;
     } else {
       this.velX = 0;
     }
 
-    // Saltar con la flecha arriba o la barra espaciadora
-    if ((keys['ArrowUp'] || keys['Space']) && this.grounded) {
+    // Salto con flecha arriba o barra espaciadora
+    if ((keys['ArrowUp'] || keys['Up'] || keys[' '] || keys['Space'] || keys['Spacebar']) && this.grounded) {
       this.velY = -this.jumpStrength;
       this.grounded = false;
     }
@@ -42,14 +42,14 @@ class Player {
     this.x += this.velX;
     this.y += this.velY;
 
-    // Colisión con el suelo del mundo
+    // Colisión con el suelo
     if (this.y + this.height > worldHeight - 20) {
       this.y = worldHeight - this.height - 20;
       this.velY = 0;
       this.grounded = true;
     }
 
-    // Mantener dentro de los límites del mundo
+    // Límites horizontales y superiores
     if (this.x < 0) this.x = 0;
     if (this.x + this.width > canvas.width) this.x = canvas.width - this.width;
     if (this.y < 0) {
@@ -137,12 +137,13 @@ let coinCount = 0;
 
 function checkCollisions() {
   player.grounded = false;
+
+  // Plataformas
   for (let p of platforms) {
     if (player.x < p.x + p.width &&
         player.x + player.width > p.x &&
         player.y < p.y + p.height &&
         player.y + player.height > p.y) {
-      // Simple collision response from top
       if (player.velY > 0 && player.y + player.height - player.velY <= p.y) {
         player.y = p.y - player.height;
         player.velY = 0;
@@ -151,7 +152,7 @@ function checkCollisions() {
     }
   }
 
-  // Colisión con monedas
+  // Monedas
   for (let c of coins) {
     if (!c.collected &&
         player.x < c.x + c.radius &&
@@ -163,12 +164,11 @@ function checkCollisions() {
     }
   }
 
-  // Colisión con el enemigo
+  // Enemigo
   if (player.x < enemy.x + enemy.width &&
       player.x + player.width > enemy.x &&
       player.y < enemy.y + enemy.height &&
       player.y + player.height > enemy.y) {
-    // Reiniciar al jugador si toca al enemigo
     player.x = 50;
     player.y = worldHeight - player.height - 60;
     coinCount = 0;
@@ -177,8 +177,7 @@ function checkCollisions() {
 }
 
 function updateCamera() {
-  cameraY = Math.max(0, Math.min(worldHeight - canvas.height,
-    player.y - canvas.height / 2));
+  cameraY = Math.max(0, Math.min(worldHeight - canvas.height, player.y - canvas.height / 2));
 }
 
 function loop() {
@@ -190,17 +189,15 @@ function loop() {
 
   ctx.save();
   ctx.translate(0, -cameraY);
+
   player.draw();
   enemy.draw();
-  for (let p of platforms) {
-    p.draw();
-  }
-  for (let c of coins) {
-    c.draw();
-  }
+  for (let p of platforms) p.draw();
+  for (let c of coins) c.draw();
+
   ctx.restore();
 
-  // Mostrar contador de monedas
+  // HUD monedas
   ctx.fillStyle = 'white';
   ctx.font = '16px Arial';
   ctx.fillText(`Monedas: ${coinCount}`, 10, 20);
@@ -213,6 +210,7 @@ window.addEventListener('keydown', (e) => {
     e.preventDefault();
   }
   keys[e.code] = true;
+  keys[e.key] = true;
 });
 
 window.addEventListener('keyup', (e) => {
@@ -220,6 +218,7 @@ window.addEventListener('keyup', (e) => {
     e.preventDefault();
   }
   keys[e.code] = false;
+  keys[e.key] = false;
 });
 
 loop();
